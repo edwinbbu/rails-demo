@@ -6,7 +6,8 @@ class New extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      description: ""
+      description: "",
+      message: null
     };
   };
 
@@ -19,8 +20,10 @@ class New extends Component {
   onSubmit = (event) => {
     event.preventDefault();
     API.postNewTask({ task: { description: this.state.description } })
-      .then(() => {
-        window.location.href = Routes.tasks_path();
+      .then((response) => {
+        this.setState({ message: response.notice }, ()=>{
+          window.location.href = Routes.tasks_path();
+        })
       })
       .catch(error => {
         if (error.text) {
@@ -64,7 +67,10 @@ class New extends Component {
     return (
       <div className="container">
         <div className="col-md-10 mx-auto pt-2">
-          {this.displayAddTaskForm()}
+          {this.state.message
+            ? <div className="alert alert-success">{this.state.message}</div>
+            : <div className="col-md-10 mx-auto pt-2">{this.displayAddTaskForm()}</div>
+          }
         </div>
       </div>
     );
