@@ -22,7 +22,7 @@ class New extends Component {
     API.postNewTask({ task: { description: this.state.description } })
       .then((response) => {
         this.setState({ message: response.notice }, ()=>{
-          window.location.href = Routes.tasks_path();
+          window.location.href = Routes.task_path(response.id);
         })
       })
       .catch(error => {
