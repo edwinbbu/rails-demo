@@ -1,5 +1,5 @@
 class TasksController < ApplicationController
-  before_action :load_task, only: [:show, :edit]
+  before_action :load_task, only: [:show, :edit, :update]
   
   def index
     @tasks = Task.all
@@ -20,10 +20,16 @@ class TasksController < ApplicationController
     end
   end
 
-  private
+  def edit
+    render
+  end
 
-  def task_params
-    params.require(:task).permit(:description)
+  def update
+    if @task.update(task_params)
+      render status: :ok, json: { notice: "Successfully updated task." }
+    else
+      render status: :unprocessable_entity, json:{ errors: @task.errors.full_messages }
+    end
   end
 
   def show
@@ -34,13 +40,15 @@ class TasksController < ApplicationController
 
   private
 
+  def task_params
+    params.require(:task).permit(:description)
+  end
+
   def load_task
     @task = Task.find(params[:id])
     rescue ActiveRecord::RecordNotFound => errors
       render json: {errors: errors}
   end
 
-  def edit
-    render
-  end
+  
 end

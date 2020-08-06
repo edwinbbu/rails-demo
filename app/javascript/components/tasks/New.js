@@ -1,39 +1,65 @@
 import React, { Component } from 'react';
-import API from '../../utils/API';
 import * as Routes from '../../utils/Routes';
+import Errors from '../shared/Errors';
+import { fetchApi } from '../../utils/API';
 
 class New extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      description: "",
-      message: null
+      description: '',
+      message: null,
+      errors: []
     };
-  };
 
-  handleChange = (event) =>{
-    this.setState({
-      description: event.target.value
+    this.onSubmit = this.onSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleError(response) {
+    this.setState({ errors: response.messages });
+  }
+
+  displayErrors() {
+    const { errors } = this.state;
+
+    return (
+      <div className="row justify-content-center">
+        {errors.length !== 0 ? (
+          <div className="mt-4">
+            <Errors errors={errors} message="danger" />
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  onSubmit(event) {
+    event.preventDefault();
+    fetchApi({
+      url: Routes.tasks_path(),
+      method: 'POST',
+      body: {
+        task: { description: this.state.description },
+      },
+      onError: this.handleError,
+      onSuccess: response => {
+        this.setState({ message: response.messages[0] });
+      },
+      successCallBack: response => {
+        setTimeout(function () {
+          window.location.replace(Routes.task_path(response.id));
+        }, 1000);
+      },
     });
   }
 
-  onSubmit = (event) => {
-    event.preventDefault();
-    API.postNewTask({ task: { description: this.state.description } })
-      .then((response) => {
-        this.setState({ message: response.notice }, ()=>{
-          window.location.href = Routes.task_path(response.id);
-        })
-      })
-      .catch(error => {
-        if (error.text) {
-          error.text().then(err => {
-            console.error(err);
-          });
-        }
-      });
+  handleChange(event) {
+    this.setState({
+      description: event.target.value,
+    });
   }
-  
+
   displayAddTaskForm() {
     return (
       <div>
@@ -46,10 +72,11 @@ class New extends Component {
               <h5 className="text-secondary ">Description: </h5>
             </label>
             <div className="col-sm-10">
-              <input type="text" 
-              className="form-control" 
-              onChange={this.handleChange}
-              value={this.state.description}
+              <input
+                type="text"
+                className="form-control"
+                onChange={this.handleChange}
+                value={this.state.description}
               />
             </div>
           </div>
@@ -66,12 +93,11 @@ class New extends Component {
   render() {
     return (
       <div className="container">
-        <div className="col-md-10 mx-auto pt-2">
-          {this.state.message
-            ? <div className="alert alert-success">{this.state.message}</div>
-            : <div className="col-md-10 mx-auto pt-2">{this.displayAddTaskForm()}</div>
-          }
-        </div>
+        {this.displayErrors()}
+        {this.state.message
+          ? <div className="alert alert-success">{this.state.message}</div>
+          : <div className="col-md-10 mx-auto pt-2">{this.displayAddTaskForm()}</div>
+        }
       </div>
     );
   }
