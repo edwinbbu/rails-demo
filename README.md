@@ -29,3 +29,5 @@ Reference: http://learnrubyonrails.bigbinary.com
 #Server
 
 `bundle exec rails server`
+
+Open http://localhost:3000/tasks
