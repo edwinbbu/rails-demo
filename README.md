@@ -22,9 +22,9 @@ Reference: http://learnrubyonrails.bigbinary.com
 
 #Setup
 
-`yarn`
-`bundle exec rails db:create`
-`bundle exec rails db:migrate`
+`yarn` <br/>
+`bundle exec rails db:create`<br/>
+`bundle exec rails db:migrate`<br/>
 
 #Server
 
